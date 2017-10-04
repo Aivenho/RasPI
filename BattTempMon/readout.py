@@ -61,7 +61,7 @@ while True:
 				if os.path.isfile("sensorIdTable") == True:
 					sensorIdTable = open("sensorIdTable", "a")
 					numLines = max(enumerate(open("sensorIdTable")))[0]
-					sensorIdTable.write(filename + " " + "T" + str(numLines + 2) + '\n')
+					sensorIdTable.write(filename + " " + "Batt" + str(numLines + 2) + '\n')
 					sensorIdTable.close()
 					sensorLookupDict[filename] = "T" + str(numLines + 1)
 				else:
@@ -73,11 +73,30 @@ while True:
 			# check if sensor read was successful
 			if lines.find('YES') != -1:
 				f = lines.find('t=')
-				temp = str(round(float(lines[f + 2:])/1000.0,1))
+				temp = str(round(float(lines[f + 2:])/1000.0,2))
 				#temp = str(round(float(2000)/1000.0,1))
 				print temp
 				if temp == "85.0": readTemps[sensorLookupDict[filename]] = "ERR"
 				else: readTemps[sensorLookupDict[filename]] = temp
 			else:
 				readTemps[sensorLookupDict[filename]] = "ERR"
-	
+
+	# update the LCD and log the data
+	with open("/home/pi/tempLogger/tempData", "a") as myfile:
+		lcdStr = ""
+		for s in range(len(sensorLookupDict)):     
+			print s
+			if "Batt" + str(s+ 1) in readTemps:
+				string = string + readTemps["Batt" + str(s+ 1)] + ','
+			else:
+				string = string + "ERR" + ','
+			print string
+		lcdOrderArray = [1,2,5,6,3,4]
+		for s in lcdOrderArray:
+			if "Batt" + str(s) in readTemps: 
+				lcdStr = lcdStr + "Batt" + str(s) + ":" + pad(readTemps["Batt" + str(s)]) + "  "
+			else:
+				lcdStr = lcdStr + "Batt" + str(s) + ":" "ERR  " + "  "
+		print lcdStr
+		print string[:-1]
+		time.sleep(dataInterval)
