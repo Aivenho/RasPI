@@ -6,9 +6,9 @@ $(function() {
         success: function(data) {
             chartData = data;
             var chartProperties = {
-                "caption": "Top 10 wicket takes ODI Cricket in 2015",
-                "xAxisName": "Player",
-                "yAxisName": "Wickets Taken",
+                "caption": "Battery charging temperature monitoring",
+                "xAxisName": "Battery",
+                "yAxisName": "Time",
                 "rotatevalues": "1",
                 "theme": "zune"
             };
