@@ -1,8 +1,9 @@
-# the main program. logs temperature data to file and updates the LCD
+# Program to read one wire temperature sensor data and log them to MySQL database
 import os
 import time
 import datetime
 import array
+import urllib2
 import subprocess
 import RPi.GPIO as GPIO
 import decimal
@@ -48,13 +49,13 @@ while True:
 			fname = '/sys/bus/w1/devices/' + filename + '/w1_slave'
 			lines = read_temp_raw(fname)
 			
-			# sometimes the sensor won't read or the data is invalid. try 5 times
+			# sometimes the sensor won't read or the data is invalid. Try 3 times
 			numT = 1
 			while lines.find('YES') == -1:
 				time.sleep(0.2)
 				lines = read_temp_raw(fname)
 				numT = numT + 1
-				if numT == 5: break
+				if numT == 3: break
 				
 			# maintaining sensorID list
 			if filename not in sensorLookupDict:
@@ -63,18 +64,17 @@ while True:
 					numLines = max(enumerate(open("sensorIdTable")))[0]
 					sensorIdTable.write(filename + " " + "Batt" + str(numLines + 2) + '\n')
 					sensorIdTable.close()
-					sensorLookupDict[filename] = "T" + str(numLines + 1)
+					sensorLookupDict[filename] = "Batt" + str(numLines + 1)
 				else:
 					sensorIdTable = open("sensorIdTable", "a")
-					sensorIdTable.write(filename + " " + "T1" + '\n')
+					sensorIdTable.write(filename + " " + "Batt1" + '\n')
 					sensorIdTable.close()
-					sensorLookupDict[filename] = "T1"
+					sensorLookupDict[filename] = "Batt1"
 					
 			# check if sensor read was successful
 			if lines.find('YES') != -1:
 				f = lines.find('t=')
 				temp = str(round(float(lines[f + 2:])/1000.0,2))
-				#temp = str(round(float(2000)/1000.0,1))
 				print temp
 				if temp == "85.0": readTemps[sensorLookupDict[filename]] = "ERR"
 				else: readTemps[sensorLookupDict[filename]] = temp
@@ -100,3 +100,17 @@ while True:
 		print lcdStr
 		print string[:-1]
 		time.sleep(dataInterval)
+
+	# Send data to MySQL server		
+	def sendDataToServer():
+	global temperature
+
+	threading.Timer(600,sendDataToServer).start()
+	print("Sensing...")
+	readSensor()
+	temperature = round(temperature,1)
+	print(temperature)
+    temp= "%.1f" %temperature
+	urllib2.urlopen("http://www.educ8s.tv/weather/add_data.php?temp="+temp).read()
+
+sendDataToServer()
