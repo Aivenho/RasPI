@@ -15,15 +15,12 @@ CREATE USER 'battery'@'localhost' IDENTIFIED BY 'password';
 GRANT ALL PRIVILEGES ON battemplog.* TO 'battery'@'localhost';
 
 CREATE TABLE battemps (
-
-batch INT NOT NULL,
-id INT NOT NULL,
-dt DATETIME NOT NULL,
+id int(8) NOT NULL AUTO_INCREMENT,
+datetime DATETIME NOT NULL,
 temp_c DECIMAL (2,1),
-dev_id VARCHAR(4),
+dev_id VARCHAR(5),
 notes VARCHAR(50) DEFAULT NULL,
-KEY temperature_notes_ind (notes),
-constraint id_field PRIMARY KEY (batch,id,dev_id)
+constraint id_field PRIMARY KEY (id,datetime)
 );
 
 CREATE TABLE batch (  
