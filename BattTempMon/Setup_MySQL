@@ -13,7 +13,29 @@ mysql -u root -p
 CREATE DATABASE battemplog;
 CREATE USER 'battery'@'localhost' IDENTIFIED BY 'password';
 GRANT ALL PRIVILEGES ON battemplog.* TO 'battery'@'localhost';
-CREATE TABLE battemps (RUN_ID int mot null, ID int not null, time DATETIME not null, temp_c DECIMAL (2,1), dev_id VARCHAR(4), constraint id_field PRIMARY KEY (RUN_ID,ID,dev_id));
+
+CREATE TABLE battemps (
+
+batch INT NOT NULL,
+id INT NOT NULL,
+dt DATETIME NOT NULL,
+temp_c DECIMAL (2,1),
+dev_id VARCHAR(4),
+notes VARCHAR(50) DEFAULT NULL,
+KEY temperature_notes_ind (notes),
+constraint id_field PRIMARY KEY (batch,id,dev_id)
+);
+
+CREATE TABLE batch (  
+name VARCHAR(50) DEFAULT NULL,
+material VARCHAR(10) DEFAULT NULL,
+start_time DATETIME DEFAULT NULL,
+active CHAR(1) DEFAULT 'Y',
+end_time DATETIME DEFAULT NULL,
+min_temp DOUBLE DEFAULT NULL,
+avg_temp DOUBLE DEFAULT NULL,
+max_temp DOUBLE DEFAULT NULL
+);
 
 // test
 mysql -ubattery -hlocalhost -Dbattemplog -p
