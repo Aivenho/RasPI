@@ -5,6 +5,7 @@ import datetime
 import array
 import urllib2
 import subprocess
+import MySQLdb
 import RPi.GPIO as GPIO
 import decimal
 import commands
@@ -91,7 +92,7 @@ while True:
 			else:
 				string = string + "ERR" + ','
 			print string
-		lcdOrderArray = [1,2,5,6,3,4]
+		lcdOrderArray = [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16]
 		for s in lcdOrderArray:
 			if "Batt" + str(s) in readTemps: 
 				lcdStr = lcdStr + "Batt" + str(s) + ":" + pad(readTemps["Batt" + str(s)]) + "  "
