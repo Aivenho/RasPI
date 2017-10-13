@@ -1,9 +1,15 @@
+//corect timezone
+sudo dpkg-reconfigure tzdata
+
+//install
 sudo apt-get install mysql-server --fix-missing
+sudo apt-get install mysql-client php5-mysql python-mysqldb
 
-sudo apt-get install mysql-client php5-mysql
+//connect
+mysql -u root -p 
+// and enter master_password when asked
 
-mysql "master_password"
-
+//create 
 CREATE DATABASE battemplog;
 CREATE USER 'battery'@'localhost' IDENTIFIED BY 'password';
 GRANT ALL PRIVILEGES ON battemplog.* TO 'battery'@'localhost';
@@ -12,3 +18,6 @@ CREATE TABLE battemps (RUN_ID int mot null, ID int not null, time DATETIME not n
 // test
 mysql -ubattery -hlocalhost -Dbattemplog -p
 
+
+// make sure MySQL starts with system
+sudo update-rc.d mysql enable
