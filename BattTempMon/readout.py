@@ -79,15 +79,15 @@ while True:
 			if lines.find('YES') != -1:
 				f = lines.find('t=')
 				temp = str(round(float(lines[f + 2:])/1000.0,2))
-				print temp
+#				print temp
 				if temp == "85.0": readTemps[sensorLookupDict[filename]] = "ERR"
 				else: readTemps[sensorLookupDict[filename]] = temp
 			else:
 				readTemps[sensorLookupDict[filename]] = "ERR"
 
-	# update the LCD and log the data
+# update the LCD and log the data
 	with open("/home/pi/tempLogger/tempData", "a") as myfile:
-		lcdStr = ""
+		tempStr = ""
 		for s in range(len(sensorLookupDict)):     
 			print s
 			if "Batt" + str(s+ 1) in readTemps:
@@ -95,45 +95,33 @@ while True:
 			else:
 				string = string + "ERR" + ','
 			print string
-		lcdOrderArray = [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16]
-		for s in lcdOrderArray:
+		tempOrderArray = [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16]
+		for s in tempOrderArray:
 			if "Batt" + str(s) in readTemps: 
-				lcdStr = lcdStr + "Batt" + str(s) + ":" + pad(readTemps["Batt" + str(s)]) + "  "
+				tempStr = tempStr + "Batt" + str(s) + ":" + pad(readTemps["Batt" + str(s)]) + "  "
 			else:
-				lcdStr = lcdStr + "Batt" + str(s) + ":" "ERR  " + "  "
-		print lcdStr
+				tempStr = tempStr + "Batt" + str(s) + ":" "ERR  " + "  "
+		print tempStr
 		print string[:-1]
-		time.sleep(dataInterval)
 
-	# Send data to MySQL server		
+# Establish connection to MySQL, open a cursor and write temperature readings to the database
 	def sendDataToServer():
-	global temperature
+		try:
+			db = MySQLdb.connect(host="localhost",user="battery",passwd="password",db="battemplog")
+			cursor = db.cursor()
+			cursor.execute("""INSERT INTO battemplog.battemps(datetime, temp, tempStr) VALUES(%d,%d,%d)""",(datetime,temp_c,dev_id))
+			db.commit()
+		except:
+			# Rollback in case there is any error
+			db.rollback()
+		finally:
+			# Disconnect from database server
+			db.close()
 
-	threading.Timer(600,sendDataToServer).start()
-	print("Sensing...")
-	readSensor()
-	temperature = round(temperature,1)
-	print(temperature)
-    temp= "%.1f" %temperature
-	urllib2.urlopen("http://www.educ8s.tv/weather/add_data.php?temp="+temp).read()
-
-sendDataToServer()
-
-
-
- # Establish connection to MySQL, open a cursor and write temperature readings to the database
-        try:
-                db = MySQLdb.connect("localhost","battery","password","battemplog")
-                cursor = db.cursor()
-                cursor.execute("""INSERT INTO battemplog.battemps(timestamp, probe_temp, int_temp) VALUES(%d,%d,%d)""",(tstamp,ptempc,itempc))
-                db.commit()
-        except:
-                # Rollback in case there is any error
-                db.rollback()
-        finally:
-                # Disconnect from database server
-                db.close()
-
+	sendDataToServer()
+		
 # Wait 15 seconds before getting the next temperature reading
 # Decreased for testing!!!
         time.sleep(5.0)
+	
+
