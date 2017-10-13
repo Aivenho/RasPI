@@ -1,14 +1,17 @@
 # Program to read one wire temperature sensor data and log them to MySQL database
+#tested
 import os
 import time
 import datetime
-import array
-import urllib2
 import subprocess
 import MySQLdb
-import RPi.GPIO as GPIO
 import decimal
 import commands
+import array
+#untested
+import urllib2
+import RPi.GPIO as GPIO
+
 
 # load required kernel modules
 os.system('sudo modprobe w1-gpio')
@@ -28,7 +31,7 @@ def pad(str):
 	if len(str) == 5: return str
 
 # data gathering interval
-dataInterval = 5
+dataInterval = 0.1
 
 # main loop
 while True:
@@ -50,10 +53,10 @@ while True:
 			fname = '/sys/bus/w1/devices/' + filename + '/w1_slave'
 			lines = read_temp_raw(fname)
 			
-			# sometimes the sensor won't read or the data is invalid. Try 3 times
+			# sometimes the sensor won't read or the data is invalid, so retry 3 times
 			numT = 1
 			while lines.find('YES') == -1:
-				time.sleep(0.2)
+				time.sleep(0.1)
 				lines = read_temp_raw(fname)
 				numT = numT + 1
 				if numT == 3: break
@@ -115,3 +118,22 @@ while True:
 	urllib2.urlopen("http://www.educ8s.tv/weather/add_data.php?temp="+temp).read()
 
 sendDataToServer()
+
+
+
+ # Establish connection to MySQL, open a cursor and write temperature readings to the database
+        try:
+                db = MySQLdb.connect("localhost","battery","password","battemplog")
+                cursor = db.cursor()
+                cursor.execute("""INSERT INTO battemplog.battemps(timestamp, probe_temp, int_temp) VALUES(%d,%d,%d)""",(tstamp,ptempc,itempc))
+                db.commit()
+        except:
+                # Rollback in case there is any error
+                db.rollback()
+        finally:
+                # Disconnect from database server
+                db.close()
+
+# Wait 15 seconds before getting the next temperature reading
+# Decreased for testing!!!
+        time.sleep(5.0)
