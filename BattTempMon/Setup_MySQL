@@ -1,0 +1,14 @@
+sudo apt-get install mysql-server --fix-missing
+
+sudo apt-get install mysql-client php5-mysql
+
+mysql "master_password"
+
+CREATE DATABASE battemplog;
+CREATE USER 'battery'@'localhost' IDENTIFIED BY 'password';
+GRANT ALL PRIVILEGES ON battemplog.* TO 'battery'@'localhost';
+CREATE TABLE battemps (RUN_ID int mot null, ID int not null, time DATETIME not null, temp_c DECIMAL (2,1), dev_id VARCHAR(4), constraint id_field PRIMARY KEY (RUN_ID,ID,dev_id));
+
+// test
+mysql -ubattery -hlocalhost -Dbattemplog -p
+
