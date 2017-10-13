@@ -6,8 +6,7 @@ sudo apt-get install mysql-server --fix-missing
 sudo apt-get install mysql-client php5-mysql python-mysqldb
 
 //connect
-mysql -u root -p 
-// and enter master_password when asked
+mysql -u root -p master_password
 
 //create 
 CREATE DATABASE battemplog;
@@ -15,12 +14,10 @@ CREATE USER 'battery'@'localhost' IDENTIFIED BY 'password';
 GRANT ALL PRIVILEGES ON battemplog.* TO 'battery'@'localhost';
 
 CREATE TABLE battemps (
-id int(8) NOT NULL AUTO_INCREMENT,
-datetime DATETIME NOT NULL,
-temp_c DECIMAL (2,1),
-dev_id VARCHAR(5),
-notes VARCHAR(50) DEFAULT NULL,
-constraint id_field PRIMARY KEY (id,datetime)
+id int(10) KEY NOT NULL AUTO_INCREMENT,
+date DATETIME NOT NULL,
+sensor VARCHAR(15),
+temp_c DECIMAL (3,1)
 );
 
 CREATE TABLE batch (  
