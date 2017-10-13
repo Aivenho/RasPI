@@ -26,6 +26,7 @@ def read_temp_raw():
     return lines
 
 def read_temp():
+    db = ()
     lines = read_temp_raw()
     date = str(datetime.datetime.now())[:16]
     sensor = device_folder[-15:]
@@ -36,20 +37,17 @@ def read_temp():
     if equals_pos != -1:
         temp_string = lines[1][equals_pos+2:]
         temp_c = str(round(float(temp_string)/1000.0,1))
-        return date, sensor, temp_c
+#        return date, sensor, temp_c
+    try:
+        db = mdb.connect(host="localhost",user="battery",passwd="password",db="battemplog")
+        cursor = db.cursor()
+        cursor.execute("""INSERT INTO battemplog.battemps(date, sensor, temp_c) VALUES (%d, %s, %d)""", (date, sensor, temp_c))
+        db.commit()
+    except:
+        db.rollback()
+    finally:
+        db.close()
 
 while True:
-        read_temps_multi()
+#        read_temps_multi()
         time.sleep(1)
-
-def sql_query(sql):
-        db = ()
-        try:
-                db = mdb.connect(host="localhost",user="battery",passwd="password",db="battemplog")
-                cursor = db.cursor()
-                cursor.execute("""INSERT INTO battemplog.battemps(date, sensor, temp_c) VALUES (%d, %s, %d)""", (date, sensor, temp_c))
-                db.commit()
-        except:
-                db.rollback()
-        finally:
-                db.close()
