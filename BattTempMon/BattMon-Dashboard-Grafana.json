@@ -154,7 +154,7 @@
           "thresholds": [],
           "timeFrom": null,
           "timeShift": null,
-          "title": "Temperatures over Time",
+          "title": "Temperatures Over Time",
           "tooltip": {
             "shared": true,
             "sort": 2,
